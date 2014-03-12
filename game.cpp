@@ -45,7 +45,7 @@ void main() \n\
 }";
 
 static void renderScene() {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	// set up the scale for each frame
 
@@ -270,6 +270,7 @@ int main(int argc, char** argv) {
 	createIndexBuffer();
 	compileShaders();
 
+	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(win)) {
 		renderScene();
 		glfwSwapBuffers(win);
