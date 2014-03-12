@@ -1,8 +1,8 @@
 CC=g++
 CFLAGS=-c -Wall
 #LDFLAGS=-lGL -lassimp -lglfw -lGLEW
-LDFLAGS=-lGL -lglut -lGLEW
-SOURCES=Camera.cpp game.cpp 
+LDFLAGS=-lGL -lglfw -lGLEW
+SOURCES=Camera.cpp GameState.cpp game.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=test
 

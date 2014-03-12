@@ -6,7 +6,7 @@
 
 // GLEW and GLUT
 #include <GL/glew.h>
-#include <GL/glut.h>
+#include <GLFW/glfw3.h>
 
 // GL math
 #define GLM_FORCE_RADIANS
@@ -15,6 +15,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "Camera.h"
+#include "GameState.h"
 
 GLuint VBO;
 GLuint IBO;
@@ -43,7 +44,7 @@ void main() \n\
 	color = calc_color; \n\
 }";
 
-static void renderSceneCB() {
+static void renderScene() {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// set up the scale for each frame
@@ -52,6 +53,7 @@ static void renderSceneCB() {
 	param += 0.01f;
 	float sin_calc = sinf(param);
 
+	gameCamera.onKey();
 	glm::mat4 scale = glm::mat4(1.0f);
 	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), sin_calc * 10.0f, glm::vec3( 0,1,0 ) );
 	glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3( 0,0,0.5f ) );
@@ -74,19 +76,14 @@ static void renderSceneCB() {
 	// clean up
 	glDisableVertexAttribArray(0);
 
-	glutSwapBuffers();
 }
 
+/*
 static void onKeyPress(unsigned char key, int x, int y) {
 	printf("%s %d %d\n",&key, x, y);
 	gameCamera.onKeyboard(key);
 }
-
-static void initializeGlutCallbacks() {
-	glutDisplayFunc(renderSceneCB);
-	glutIdleFunc(renderSceneCB);
-	glutKeyboardFunc(onKeyPress);
-}
+*/
 
 static void createVertexBuffer() {
 	glm::vec3 vertices[4];
@@ -174,14 +171,53 @@ static void compileShaders() {
 	}
 }
 
-int main(int argc, char** argv) {
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA);
-	glutInitWindowSize(1024,768);
-	glutInitWindowPosition(100, 100);
-	glutCreateWindow("Game");
+void error_callback(int error, const char* description) {
+	fprintf(stderr, "ERROR: %s\n", description);
+}
 
-	initializeGlutCallbacks();
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+	switch (key) {
+		case GLFW_KEY_ESCAPE:
+			if (action == GLFW_PRESS) {
+				glfwSetWindowShouldClose(window, GL_TRUE);
+			}
+			break;
+		case GLFW_KEY_W:
+			if (action == GLFW_PRESS) {
+				GameState::forward = 1;
+			} else if (action == GLFW_RELEASE) {
+				GameState::forward = 0;
+			}
+			break;
+		case GLFW_KEY_S:
+			if (action == GLFW_PRESS) {
+				GameState::backward = 1;
+			} else if (action == GLFW_RELEASE) {
+				GameState::backward = 0;
+			}
+			break;
+		default:
+			if (action == GLFW_PRESS) {
+				printf("Not a known key.\n");
+			}
+			break;
+	}
+}
+
+int main(int argc, char** argv) {
+	if (!glfwInit()) {
+		fprintf(stderr, "Could not initialize glfw\n");
+		return 1;
+	}
+	glfwSetErrorCallback(error_callback);
+
+	GLFWwindow *win = glfwCreateWindow(1024, 768, "Game", NULL, NULL);
+	if (!win) {
+		fprintf(stderr, "Could not create glfw window\n");
+		return 1;
+	}
+	glfwMakeContextCurrent(win);
+	glfwSetKeyCallback(win,key_callback);
 
 	GLenum res = glewInit();
 	if (res != GLEW_OK) {
@@ -195,7 +231,13 @@ int main(int argc, char** argv) {
 	createIndexBuffer();
 	compileShaders();
 
-	glutMainLoop();
+	while (!glfwWindowShouldClose(win)) {
+		renderScene();
+		glfwSwapBuffers(win);
+		glfwPollEvents();
+	}
 
+	glfwDestroyWindow(win);
+	glfwTerminate();
 	return 0;
 }

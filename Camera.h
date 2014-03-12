@@ -6,7 +6,7 @@
 class Camera {
 	public:
 		Camera();
-		bool onKeyboard(int key);
+		void onKey();
 		glm::vec3 pos() const;
 		glm::vec3 tar() const;
 		glm::vec3 up() const;
