@@ -5,16 +5,16 @@
 
 class Camera {
 	public:
-		Camera();
+		Camera(glm::vec3,glm::vec3,glm::vec3);
 		void onKey();
-		glm::vec3 pos() const;
-		glm::vec3 tar() const;
-		glm::vec3 up() const;
+		glm::mat4 view() const;
 	private:
-		glm::vec3 m_pos;
-		glm::vec3 m_tar;
 		glm::vec3 m_up;
+		glm::mat4 m_trans;
+		glm::mat4 m_view;
+		float m_rot;
 		float stepSize;
+		float rotSpeed;
 };
 
 #endif

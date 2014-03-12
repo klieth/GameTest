@@ -21,7 +21,7 @@ GLuint VBO;
 GLuint IBO;
 GLuint gWorldLocation;
 
-Camera gameCamera;
+Camera gameCamera(glm::vec3(0,0,5),glm::vec3(0,0,0),glm::vec3(0,1,0));
 
 static const char* vS = "\n\
 #version 330 \n\
@@ -51,16 +51,18 @@ static void renderScene() {
 
 	static float param = 0.0f;
 	param += 0.01f;
-	float sin_calc = sinf(param);
+	//float sin_calc = sinf(param);
 
 	gameCamera.onKey();
 	glm::mat4 scale = glm::mat4(1.0f);
-	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), sin_calc * 10.0f, glm::vec3( 0,1,0 ) );
+	//glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), sin_calc * 10.0f, glm::vec3( 0,1,0 ) );
+	glm::mat4 rotate(1.0f);
 	glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3( 0,0,0.5f ) );
 	glm::mat4 perspective = glm::perspective(glm::pi<float>() / 6.0f, 4.0f/3.0f, 1.0f, 100.0f);
-	glm::mat4 view = glm::lookAt( gameCamera.pos(), gameCamera.tar(), gameCamera.up());
+	//glm::mat4 view = glm::lookAt( gameCamera.pos(), gameCamera.tar(), gameCamera.up());
 	//printf("Camera: %s\n",glm::to_string(gameCamera.pos()).c_str());
-	glm::mat4 world = perspective * view * translate * rotate * scale;
+	//glm::mat4 world = perspective * view * translate * rotate * scale;
+	glm::mat4 world = perspective * gameCamera.view() * translate * rotate * scale;
 
 	glUniformMatrix4fv(gWorldLocation, 1, GL_FALSE, &world[0][0]);
 
@@ -71,7 +73,7 @@ static void renderScene() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
 	// Do the drawing
-	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0);
 
 	// clean up
 	glDisableVertexAttribArray(0);
@@ -86,11 +88,19 @@ static void onKeyPress(unsigned char key, int x, int y) {
 */
 
 static void createVertexBuffer() {
+	/*
 	glm::vec3 vertices[4];
 	vertices[0] = glm::vec3(-1.0f,-1.0f,0.0f);
 	vertices[1] = glm::vec3(0.0f,-1.0f,1.0f);
 	vertices[2] = glm::vec3(1.0f,-1.0f,0.0f);
 	vertices[3] = glm::vec3(0.0f,1.0f,0.0f);
+	*/
+	glm::vec3 vertices[5];
+	vertices[0] = glm::vec3(-1.0f,-1.0f,0.0f);
+	vertices[1] = glm::vec3(0.0f,-1.0f,1.0f);
+	vertices[2] = glm::vec3(1.0f,-1.0f,0.0f);
+	vertices[3] = glm::vec3(0.0f,-1.0f,-1.0f);
+	vertices[4] = glm::vec3(0.0f,1.0f,0.0f);
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -98,10 +108,18 @@ static void createVertexBuffer() {
 }
 
 static void createIndexBuffer() {
+	/*
 	unsigned int indices[] = { 0, 3, 1,
 							   1, 3, 2,
 							   2, 3, 0,
 							   0, 1, 2  };
+							   */
+	unsigned int indices[] = { 0, 1, 2,
+							   0, 2, 3,
+							   0, 1, 4,
+							   1, 2, 4,
+							   2, 3, 4,
+							   3, 0, 4  };
 
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
@@ -194,6 +212,27 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 				GameState::backward = 1;
 			} else if (action == GLFW_RELEASE) {
 				GameState::backward = 0;
+			}
+			break;
+		case GLFW_KEY_A:
+			if (action == GLFW_PRESS) {
+				GameState::left = 1;
+			} else if (action == GLFW_RELEASE) {
+				GameState::left = 0;
+			}
+			break;
+		case GLFW_KEY_D:
+			if (action == GLFW_PRESS) {
+				GameState::right = 1;
+			} else if (action == GLFW_RELEASE) {
+				GameState::right = 0;
+			}
+			break;
+		case GLFW_KEY_E:
+			if (action == GLFW_PRESS) {
+				GameState::yaw = 1;
+			} else if (action == GLFW_RELEASE) {
+				GameState::yaw = 0;
 			}
 			break;
 		default:
