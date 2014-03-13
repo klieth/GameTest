@@ -16,6 +16,7 @@
 
 #include "Camera.h"
 #include "GameState.h"
+#include "Shader.h"
 
 GLuint VBO;
 GLuint IBO;
@@ -23,6 +24,7 @@ GLuint gWorldLocation;
 
 Camera gameCamera(glm::vec3(0,0,5),glm::vec3(0,0,-1),glm::vec3(0,1,0));
 
+/*
 static const char* vS = "\n\
 #version 330 \n\
 layout(location = 0) in vec3 pos; \n\
@@ -43,6 +45,7 @@ void main() \n\
 	//color = vec4(1.0, 0.0, 0.0, 1.0); \n\
 	color = calc_color; \n\
 }";
+*/
 
 static void renderScene() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -59,9 +62,6 @@ static void renderScene() {
 	glm::mat4 rotate(1.0f);
 	glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3( 0,0,0.5f ) );
 	glm::mat4 perspective = glm::perspective(glm::pi<float>() / 6.0f, 4.0f/3.0f, 1.0f, 100.0f);
-	//glm::mat4 view = glm::lookAt( gameCamera.pos(), gameCamera.tar(), gameCamera.up());
-	//printf("Camera: %s\n",glm::to_string(gameCamera.pos()).c_str());
-	//glm::mat4 world = perspective * view * translate * rotate * scale;
 	glm::mat4 world = perspective * gameCamera.view() * translate * rotate * scale;
 
 	glUniformMatrix4fv(gWorldLocation, 1, GL_FALSE, &world[0][0]);
@@ -80,21 +80,7 @@ static void renderScene() {
 
 }
 
-/*
-static void onKeyPress(unsigned char key, int x, int y) {
-	printf("%s %d %d\n",&key, x, y);
-	gameCamera.onKeyboard(key);
-}
-*/
-
 static void createVertexBuffer() {
-	/*
-	glm::vec3 vertices[4];
-	vertices[0] = glm::vec3(-1.0f,-1.0f,0.0f);
-	vertices[1] = glm::vec3(0.0f,-1.0f,1.0f);
-	vertices[2] = glm::vec3(1.0f,-1.0f,0.0f);
-	vertices[3] = glm::vec3(0.0f,1.0f,0.0f);
-	*/
 	glm::vec3 vertices[5];
 	vertices[0] = glm::vec3(-1.0f,-1.0f,0.0f);
 	vertices[1] = glm::vec3(0.0f,-1.0f,1.0f);
@@ -108,12 +94,6 @@ static void createVertexBuffer() {
 }
 
 static void createIndexBuffer() {
-	/*
-	unsigned int indices[] = { 0, 3, 1,
-							   1, 3, 2,
-							   2, 3, 0,
-							   0, 1, 2  };
-							   */
 	unsigned int indices[] = { 0, 1, 2,
 							   0, 2, 3,
 							   0, 1, 4,
@@ -126,6 +106,7 @@ static void createIndexBuffer() {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
+/*
 static void addShader(GLuint shaderProgram, const char* pShaderText, GLenum shaderType) {
 	GLuint shaderObj = glCreateShader(shaderType);
 	
@@ -150,7 +131,9 @@ static void addShader(GLuint shaderProgram, const char* pShaderText, GLenum shad
 	}
 	glAttachShader(shaderProgram, shaderObj);
 }
+*/
 
+/*
 static void compileShaders() {
 	GLuint shaderProgram = glCreateProgram();
 
@@ -188,6 +171,7 @@ static void compileShaders() {
 		exit(1);
 	}
 }
+*/
 
 void error_callback(int error, const char* description) {
 	fprintf(stderr, "ERROR: %s\n", description);
@@ -281,7 +265,12 @@ int main(int argc, char** argv) {
 
 	createVertexBuffer();
 	createIndexBuffer();
-	compileShaders();
+	//compileShaders();
+	Shader::init();
+	Shader::addShader(Shader::getDefaultVertexShader(), GL_VERTEX_SHADER);
+	Shader::addShader(Shader::getDefaultFragmentShader(), GL_FRAGMENT_SHADER);
+	Shader::compileShaders();
+	Shader::setWorldVars();
 
 	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(win)) {

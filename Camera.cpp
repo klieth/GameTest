@@ -1,6 +1,8 @@
 
 #include <cstdio>
 
+#include "GameState.h"
+
 #include <GL/glut.h>
 #include <GLFW/glfw3.h>
 #define GLM_FORCE_RADIANS
@@ -8,7 +10,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Camera.h"
-#include "GameState.h"
 
 Camera::Camera(glm::vec3 p, glm::vec3 t, glm::vec3 u) {
 	m_pos = p;
