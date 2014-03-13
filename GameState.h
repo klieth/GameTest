@@ -7,7 +7,8 @@ class GameState {
 		static bool backward;
 		static bool left;
 		static bool right;
-		static bool yaw;
+		static bool up;
+		static bool down;
 };
 
 #endif

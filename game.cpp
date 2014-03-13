@@ -21,7 +21,7 @@ GLuint VBO;
 GLuint IBO;
 GLuint gWorldLocation;
 
-Camera gameCamera(glm::vec3(0,0,5),glm::vec3(0,0,0),glm::vec3(0,1,0));
+Camera gameCamera(glm::vec3(0,0,5),glm::vec3(0,0,-1),glm::vec3(0,1,0));
 
 static const char* vS = "\n\
 #version 330 \n\
@@ -228,11 +228,18 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 				GameState::right = 0;
 			}
 			break;
-		case GLFW_KEY_E:
+		case GLFW_KEY_SPACE:
 			if (action == GLFW_PRESS) {
-				GameState::yaw = 1;
+				GameState::up = 1;
 			} else if (action == GLFW_RELEASE) {
-				GameState::yaw = 0;
+				GameState::up = 0;
+			}
+			break;
+		case GLFW_KEY_X:
+			if (action == GLFW_PRESS) {
+				GameState::down = 1;
+			} else if (action == GLFW_RELEASE) {
+				GameState::down = 0;
 			}
 			break;
 		default:
@@ -241,6 +248,11 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 			}
 			break;
 	}
+}
+
+void mouse_callback(GLFWwindow *window, double x, double y) {
+	gameCamera.onMouse(x, y);
+	glfwSetCursorPos(window, 1024/2,768/2);
 }
 
 int main(int argc, char** argv) {
@@ -257,6 +269,7 @@ int main(int argc, char** argv) {
 	}
 	glfwMakeContextCurrent(win);
 	glfwSetKeyCallback(win,key_callback);
+	glfwSetCursorPosCallback(win,mouse_callback);
 
 	GLenum res = glewInit();
 	if (res != GLEW_OK) {
